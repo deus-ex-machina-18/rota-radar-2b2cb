@@ -16,17 +16,21 @@ are not automatically deployed to this Netlify project.
 - Production `/api/destinations`: HTTP 200; 83 destinations, 75 flight and 8 ground.
 - Production history: HTTP 200 with eight saved records, labelled as history.
 - Ground-only live flight request: HTTP 422; unsupported traveller count: HTTP 400.
-- Real CMN / 3-adult scan surfaces HTTP 401 from the fare provider and explicitly
-  labels the fallback record as old, not live.
+- Real CMN / 3-adult scan first surfaced provider HTTP 401; after the user's key
+  update and redeploy it surfaces HTTP 429. The fallback record is labelled old.
 - Previous core and controlled radar/API/Blobs tests passed for the synced source.
   They do not verify real fares or a seller checkout.
 
 ## Current blocker and next single task
 
-The Production `SEARCHAPI_API_KEY` is configured for Builds, Functions and Runtime,
-but SearchAPI rejects the live request with HTTP 401. Its stored secret is not
-readable in the Netlify UI. Correct/replace the Production value using a valid
-SearchAPI credential, redeploy, then verify one live route and its seller handoff.
-Never commit the key or expose it in logs, browser output or client code.
+The user re-saved the Production `SEARCHAPI_API_KEY` on 18 October 2026.
+Netlify redeploy `6ad5280c99c24e448b5b4c27` published successfully with that setting.
+A real CMN / 3-adult scan now returns provider HTTP 429 (query/rate limit), rather
+than the previous HTTP 401. The UI clearly labels the fallback as an old record.
+The account's remaining credits and hourly usage have not been inspected, so the
+exact quota reason is not established. Stop repeated scans; check the provider
+account quota/reset, then verify one live fare and its seller handoff when allowed.
+The stored key was not read or copied by the agent. Never commit it or expose it
+in logs, browser output or client code.
 
 Scheduled scans and Android push notifications are not implemented.
